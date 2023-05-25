@@ -1,0 +1,161 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="card">
+    <div class="card-header">
+        Venta
+    </div>
+    <div class="card-body">
+
+        <div class="row">
+
+            <div class="col-sm-4">
+                <div class="mb-2">
+                    <label for="exampleInputEmail1" class="form-label">Número documento</label>
+                    <input type="text" class="form-control form-control-sm" id="txtNumDocumento">
+                </div>
+            </div>
+
+            <div class="col-sm-4">
+                <div class="mb-2">
+                    <label for="exampleInputEmail1" class="form-label">Razón social</label>
+                    <input type="text" class="form-control form-control-sm" id="txtRazonSocial">
+                </div>
+            </div>
+
+            <hr />
+
+        </div>
+
+        <div class="row align-items-end">
+
+            <div class="col-sm-3">
+                <div class="mb-2">
+                    <label for="exampleInputEmail1" class="form-label">Producto</label>
+                    <input type="text" class="form-control form-control-sm" id="txtProducto">
+                </div>
+            </div>
+
+            <div class="col-sm-3">
+                <div class="mb-2">
+                    <label for="exampleInputEmail1" class="form-label">Precio</label>
+                    <input type="text" class="form-control form-control-sm" id="txtPrecio">
+                </div>
+            </div>
+
+            <div class="col-sm-3">
+                <div class="mb-2">
+                    <label for="exampleInputEmail1" class="form-label">Cantidad</label>
+                    <input type="text" class="form-control form-control-sm" id="txtCantidad">
+                </div>
+            </div>
+
+            <div class="col-sm-3">
+                <button class="btn btn-success mb-2 btn-sm" id="btnAgregar">Agregar</button>
+                <button class="btn btn-primary mb-2 btn-sm" id="btnTerminar">Terminar</button>
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+
+                <table class="table table-bordered table-sm" id="tbProducto">
+                    <thead class="table-dark">
+                        <tr>
+                            <th scope="col">Producto</th>
+                            <th scope="col">Precio</th>
+                            <th scope="col">Cantidad</th>
+                            <th scope="col">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts{
+
+    <script>
+
+        $("#btnAgregar").on("click",function(){
+
+            var total = parseFloat($("#txtPrecio").val()) * parseFloat($("#txtCantidad").val())
+
+            $("#tbProducto tbody").append(               
+                $("<tr>").append(
+                    $("<td>").text($("#txtProducto").val()),
+                    $("<td>").text($("#txtPrecio").val()),
+                    $("<td>").text($("#txtCantidad").val()),
+                    $("<td>").text(total),             
+                
+                )        
+            )
+        });
+
+
+        $("#btnTerminar").on("click", function () {
+
+            var detalle_venta = []
+            var total = 0
+
+            $("#tbProducto > tbody > tr").each(function(index,tr){
+            
+                //Creamos Array de objetos
+                detalle_venta.push(                
+                    {
+                        Producto: $(tr).find("td:eq(0)").text(),
+                        Precio: parseFloat($(tr).find("td:eq(1)").text()),
+                        Cantidad: parseInt($(tr).find("td:eq(2)").text()),
+                        Total: parseFloat($(tr).find("td:eq(3)").text()),                  
+                    
+                    }
+                )
+                total = total + parseFloat($(tr).find("td:eq(3)").text());          
+            })
+
+
+            var venta = {
+                NumeroDocumento: $("#txtNumDocumento").val(),
+                RazonSocial: $("#txtRazonSocial").val(),
+                Total: total,
+                listDetalleVenta: detalle_venta
+            }
+
+
+            console.log(venta);
+
+
+            jQuery.ajax({
+                url: "@Url.Action("GuardarVenta","Home")",
+                type: "POST",
+                data: JSON.stringify(venta),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function(data){
+                
+                    console.log(data)
+
+                    if(data.respuesta){
+                    
+                        alert("Venta registrada");
+                    }
+                
+                }                                  
+            })
+
+            
+
+
+        });
+
+    </script>
+
+}
+
+
